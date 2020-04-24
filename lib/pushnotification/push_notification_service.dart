@@ -6,12 +6,15 @@ import 'package:flutterfirebasesample/pushnotification/push_notification_screen_
 import 'package:flutterfirebasesample/widgets/widgets.dart';
 import '../main.dart';
 
-class PushNotificationService {
-  final FirebaseMessaging _fcm = FirebaseMessaging();
-  FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-      new FlutterLocalNotificationsPlugin();
 
-  Future initialise() async {
+class PushNotificationService {
+  static FirebaseMessaging _fcm = FirebaseMessaging();
+  static FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
+  static Future<dynamic> myBackgroundMessageHandler(Map<String, dynamic> message) async {
+    showNotification(message);
+  }
+
+  static Future initialise() async {
     if (Platform.isIOS) {
       _fcm.requestNotificationPermissions(IosNotificationSettings());
     }
@@ -19,7 +22,7 @@ class PushNotificationService {
       // When the app is open and it receives a push notification
       onMessage: (Map<String, dynamic> message) async {
         print("onMessage: $message");
-        showNotification();
+        showNotification(message);
         _handleRemoteMessage("onMessage", message);
       },
       // When the app is completely closed (not in the background) and opened directly from the push notification
@@ -32,10 +35,11 @@ class PushNotificationService {
         print("onResume: $message");
         _handleRemoteMessage("onResume", message);
       },
+      onBackgroundMessage: myBackgroundMessageHandler,
     );
   }
 
-  void _handleRemoteMessage(
+  static void _handleRemoteMessage(
       String message, Map<String, dynamic> remoteMessage) {
     showToast(message);
     if (remoteMessage['data'] != null) {
@@ -51,7 +55,8 @@ class PushNotificationService {
     }
   }
 
-  void showNotification() async{
+  static void showNotification(Map<String, dynamic> message) async {
+
     flutterLocalNotificationsPlugin.initialize(
       InitializationSettings(
         AndroidInitializationSettings('mipmap/ic_launcher'),
@@ -60,13 +65,17 @@ class PushNotificationService {
     );
 
     var android = new AndroidNotificationDetails(
-      'sdffds dsffds',
+      'CHANNEL ID',
       "CHANNLE NAME",
       "channelDescription",
+      priority: Priority.High
     );
     var iOS = new IOSNotificationDetails();
     var platform = new NotificationDetails(android, iOS);
-    await flutterLocalNotificationsPlugin.show(
-        0, "This is title", "this is demo", platform);
+
+    var title = message['data']['title'];
+    var body = message['data']['body'];
+
+    await flutterLocalNotificationsPlugin.show(0, title, body, platform);
   }
 }

@@ -10,7 +10,7 @@ class HomePageScreen extends StatelessWidget {
   static const String routeName = "HomePageScreen";
   @override
   Widget build(BuildContext context) {
-    PushNotificationService().initialise();
+    PushNotificationService.initialise();
     return Scaffold(
       body: SafeArea(
         child: ListView(

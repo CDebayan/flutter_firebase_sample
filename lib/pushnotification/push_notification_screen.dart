@@ -15,16 +15,23 @@ class _PushNotificationScreenState extends State<PushNotificationScreen> {
   @override
   void initState() {
     super.initState();
-    _firebaseMessaging.getToken().then((va) {
-      print(va);
-    });
+
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Container(child: Center(child: Text("Base"),),),
+        child: Container(child: Center(child: Column(
+          children: <Widget>[
+            Text("Base"),
+            RaisedButton(onPressed: (){
+              _firebaseMessaging.getToken().then((va) {
+                print(va);
+              });
+            })
+          ],
+        ),),),
       ),
     );
   }
